@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        body {
+            background-color: #0E5E6F;
+        }
+
+        #game {
+            margin: 50px auto;
+            box-shadow: 0 0 10px #333;
+            position: relative;
+        }
+
+        #game * {
+            position: absolute;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+
+        let hr = document.createElement("hr")
+        hr.style.top = '50%'
+        hr.style.width = '80%'
+        hr.style.left = '10%'
+        hr.style.borderTop = 'dashed 5px #497174'
+
+        let pScore = document.createElement("div");
+        pScore.id = "pScore";
+        pScore.textContent = 0;
+        pScore.style.fontFamily = 'sans-serif'
+        pScore.style.fontSize = '50px'
+        pScore.style.top = '400px'
+        pScore.style.left = '50px'
+
+        let cScore = document.createElement("div");
+        cScore.id = "cScore";
+        cScore.textContent = 0;
+        cScore.style.fontFamily = 'sans-serif'
+        cScore.style.fontSize = '50px'
+        cScore.style.top = '200px'
+        cScore.style.left = '50px'
+
+        const ball = {
+            w: 30,
+            h: 30,
+            color: 'red',
+            x: 400,
+            y: 150,
+            vX: 5,
+            vY: 5,
+            move() {
+                if (ball.x < 0 || ball.x > 770) {
+                    ball.vX *= -1
+
+                }
+                if (ball.y < 0) {
+                    pScore.textContent = parseInt(pScore.textContent) + 1
+                    ball.x = 400
+                    ball.y = 150
+                    ball.vX = 5
+                    ball.vY = 5
+                    cBar.x = 375
+                    if (pScore.textContent == 3)
+                        game.over('Player')
+                }
+                else if ((ball.y > game.h - bar.y - bar.h - ball.h) &&
+                    (ball.x + ball.w / 2 > bar.x) &&
+                    (ball.x + ball.w / 2 < bar.x + bar.w) || (ball.y < cBar.y + cBar.h) &&
+                    (ball.x + ball.w / 2 > cBar.x) &&
+                    (ball.x + ball.w / 2 < cBar.x + cBar.w)) {
+                    ball.vY *= -1;
+                }
+                if (ball.y > 570) {
+                    cScore.textContent = parseInt(cScore.textContent) + 1
+                    ball.x = 400
+                    ball.y = 150
+                    cBar.x = 375
+                    console.log(cScore.textContent);
+                    if (cScore.textContent == '3') {
+                        game.over('Comp')
+                    }
+                }
+
+                if (ball.vX < 0 && cBar.vX > 0 || ball.vX > 0 && cBar.vX < 0) {
+                    cBar.vX *= -1
+                }
+
+                ball.y += ball.vY;
+                ball.x += ball.vX;
+                if (!(cBar.x > 770 || cBar.x < 0))
+                    cBar.x += cBar.vX
+                cBar.show()
+                ball.show();
+            },
+
+            show(state = 0) {
+                if (state) {
+                    ball.elem = document.getElementById("ball");
+                    ball.elem.style.width = ball.w + "px";
+                    ball.elem.style.height = ball.h + "px";
+                    ball.elem.style.background = ball.color;
+                }
+
+                ball.elem.style.top = ball.y + "px";
+                ball.elem.style.left = ball.x + "px";
+            },
+
+            create() {
+                let div = document.createElement("div");
+                div.id = "ball";
+                game.elem.append(div);
+                this.show(1);
+            }
+        }
+
+        const bar = {
+            w: 150,
+            h: 10,
+            x: 0,
+            y: 5,
+            color: 'green',
+            move(e) {
+                if (e.type == 'keydown') {
+                    if (e.keyCode == 37) bar.x -= 10;
+                    if (e.keyCode == 39) bar.x += 10;
+                }
+                else {
+                    bar.x = e.pageX - game.elem.offsetLeft - 75;
+                }
+                if (bar.x < 0) bar.x = 0;
+                if (bar.x > 650) bar.x = 650;
+                bar.show();
+            },
+            show() {
+                bar.elem = document.getElementById("bar");
+                bar.elem.style.bottom = bar.y + "px";
+                bar.elem.style.left = bar.x + "px";
+                bar.elem.style.width = bar.w + "px";
+                bar.elem.style.height = bar.h + "px";
+                bar.elem.style.background = bar.color;
+            },
+            create() {
+                let div = document.createElement("div");
+                div.id = "bar";
+                game.elem.append(div);
+                this.show();
+            }
+
+        }
+
+        const cBar = {
+            w: 150,
+            h: 10,
+            x: 400 - 75,
+            y: 5,
+            vX: 4,
+            color: 'blue',
+            move(e) {
+
+            },
+            show() {
+                cBar.elem = document.getElementById("cBar");
+                cBar.elem.style.top = cBar.y + "px";
+                cBar.elem.style.left = cBar.x + "px";
+                cBar.elem.style.width = cBar.w + "px";
+                cBar.elem.style.height = cBar.h + "px";
+                cBar.elem.style.background = cBar.color;
+            },
+            create() {
+                let div = document.createElement("div");
+                div.id = "cBar";
+                game.elem.append(div);
+                this.show();
+            }
+
+        }
+
+        const game = {
+            w: 800,
+            h: 600,
+            color: '#fff',
+            show() {
+                this.elem = document.getElementById("game");
+                this.elem.style.width = this.w + "px";
+                this.elem.style.height = this.h + "px";
+                this.elem.style.background = this.color;
+            },
+            create() {
+                let div = document.createElement("div");
+                div.id = "game";
+                document.body.append(div);
+                this.show()
+            },
+            over(winner) {
+                clearInterval(start);
+                const game = document.getElementById('game')
+                // game.innerHTML = ''
+                const endDiv = document.createElement('div')
+                const restartBtn = document.createElement('button')
+                const textt = document.createElement('span')
+                textt.style.color = 'white'
+                textt.textContent = `${winner} wins!`
+                textt.style.fontFamily = 'sans-serif'
+                textt.style.fontSize = '50px'
+                textt.style.margin = '200px 280px'
+                textt.style.width = '100%'
+                restartBtn.style.margin = '290px 390px'
+                // restartBtn.style.margin = '40px 0'
+                restartBtn.textContent = '↺' 
+                restartBtn.style.fontSize = '30px' 
+                restartBtn.style.width = '60px' 
+                restartBtn.style.height = '50px'
+                restartBtn.style.cursor= 'pointer'
+
+                restartBtn.onclick = function(){
+                    game.removeChild(endDiv)
+                    start = setInterval(ball.move, 20);
+                    cScore.textContent = 0
+                    pScore.textContent = 0
+                }
+
+                endDiv.style.backgroundColor = 'black'
+                endDiv.style.width = '100%'
+                endDiv.style.height = '100%'
+                // endDiv.style.textAlign = 'center'
+                // endDiv.style.padding = '50px 0 0 0'
+                game.append(endDiv)
+                endDiv.append(textt) 
+                endDiv.append(restartBtn)
+            }
+        }
+
+
+        let start = setInterval(ball.move, 20);
+        game.create();
+
+        game.elem.append(pScore)
+        game.elem.append(cScore)
+        game.elem.append(hr)
+
+        bar.create();
+        cBar.create();
+        ball.create();
+        game.show();
+        document.onkeydown = bar.move;
+        game.elem.onmousemove = bar.move;
+    </script>
+</body>
+
+</html>
